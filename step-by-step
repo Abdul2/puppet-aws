@@ -22,7 +22,8 @@ touch touch ~/.aws/credentials
 
 # Install puppet module
 puppet module install puppetlabs-aws
-# module will be installed in ~/.puppetlabs/etc/code/modules/aws/bin
+# module will be installed in ~/.puppetlabs/etc/code/modules/aws
+# this folder contains examples to get you started.
 
 # to stay in dublin
 export AWS_REGION=eu-west-1
@@ -38,9 +39,10 @@ export AWS_SECRET_ACCESS_KEY=your_secret_access_key
 # to create an instnace. create a create.pp file with current content:
 
 
-ec2_instance { 'hmpo':
+ec2_instance { 'myinstance':
   ensure          => present,
   image_id        => 'ami-number', # replace as required
+  region          => 'region-code', #replace with code e.g. eu-west-1
   instance_type   => 't2.micro', #replace as required
   tags            => { #include own tags
     department => 'dept',
@@ -52,5 +54,26 @@ ec2_instance { 'hmpo':
 # run puppet on file above
 
 puppet apply create.pp
+
+# loginto your aws console and see resource created
+
+# deleting of the instance involves stopping it and terminating (two files)
+
+# to stop - put the text below into a file_name.pp and run $ puppet apply file_name.pp
+
+ec2_instance { 'myinstance':
+  ensure   => 'stopped',
+  region   => 'eu-west-1', # must have the region
+}
+
+# to terminate -put the text below into file_name.pp and run $puppet apply file_name.pp
+
+ec2_instance { 'myintance':
+  ensure   => 'absent',
+  region   => 'eu-west-1', # must have the region
+}
+
+
+
 
 
