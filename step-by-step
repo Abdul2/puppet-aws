@@ -1,42 +1,75 @@
 
-# install puppet gem
-
-sudo gem install puppet
-
-# this will install the following gems:
-# facter-2.4.4  hiera-3.0.1  json_pure-1.8.2  puppet-4.2.1
-# in /var/lib/gems/1.9.1/gems/
-
-sudo gem install aws-sdk-core retries
-
-# this installs the following gems in /var/lib/gems/1.9.1/gems/
-# aws-sdk-core-2.1.8  jmespath-1.0.2  multi_json-1.11.2  retries-0.0.5
-
-mkdir ~/.aws
-touch touch ~/.aws/credentials
-# include the following text replacing key values
-
-#[default]
-#aws_access_key_id = your_access_key_id
-#aws_secret_access_key = your_secret_access_key
-
-# Install puppet module
-puppet module install puppetlabs-aws
-# module will be installed in ~/.puppetlabs/etc/code/modules/aws
-# this folder contains examples to get you started.
-
-# to stay in dublin
-export AWS_REGION=eu-west-1
-
-# test 
-puppet resource ec2_instance # this should return the running instances. if you receive access credentials error, 
-# export the key values
-
-export AWS_ACCESS_KEY_ID=your_access_key_id
-export AWS_SECRET_ACCESS_KEY=your_secret_access_key
 
 
-# to create an instnace. create a create.pp file with current content:
+# this instructions were tested on the followwing :
+
+OS:
+Distributor ID:	Ubuntu
+Description:	Ubuntu 14.04.2 LTS
+Release:	14.04
+Codename:	trusty
+
+Vagrant:
+1.6.5
+
+virtualbox
+
+4.3.10
+
+I used vagrant and virtualbox to vagrant up an ubuntu machine.
+
+step-by-step:
+
+1) ssh into the ubuntu machine ( $ vagrant ssh
+
+2) install puppet gem
+
+ $ sudo gem install puppet
+
+ this will install the following gems:
+ facter-2.4.4  hiera-3.0.1  json_pure-1.8.2  puppet-4.2.1 in /var/lib/gems/1.9.1/gems/
+
+$ sudo gem install aws-sdk-core retries
+
+  this install the following gems in /var/lib/gems/1.9.1/gems/
+  aws-sdk-core-2.1.8  jmespath-1.0.2  multi_json-1.11.2  retries-0.0.5
+
+3) set your aws access details
+
+ $ mkdir ~/.aws
+ $ touch touch ~/.aws/credentials
+
+ include the following text in credentials file replacing key values with your own 
+
+  [default]
+  aws_access_key_id = your_access_key_id
+  aws_secret_access_key = your_secret_access_key
+
+4) Install puppet module
+ 
+  $ puppet module install puppetlabs-aws
+
+    module will be installed in ~/.puppetlabs/etc/code/modules/aws.this folder contains examples to get you started.
+
+ 5) to staying dublin in a region
+
+    export AWS_REGION=eu-west-1
+    
+  6) test 
+  
+     $ puppet resource ec2_instance
+
+
+   $ puppet resource ec2_instance 
+   
+   this should return the running instances. if you receive access credentials error, export the key values 
+   (in theory credenials file should work and no need to export key values)
+
+   $ export AWS_ACCESS_KEY_ID=your_access_key_id
+   $ export AWS_SECRET_ACCESS_KEY=your_secret_access_key
+
+
+  7) to create an instnace. create a create.pp (create is not a key word and name will do) file with current content:
 
 
 ec2_instance { 'myinstance':
@@ -51,28 +84,36 @@ ec2_instance { 'myinstance':
   }
 }
 
-# run puppet on file above
+ run puppet on file with --noop
 
-puppet apply create.pp
+$ puppet apply create.pp --noop
 
-# loginto your aws console and see resource created
+if all ok run create.pp
 
-# deleting of the instance involves stopping it and terminating (two files)
+$ puppet apply create.pp 
 
-# to stop - put the text below into a file_name.pp and run $ puppet apply file_name.pp
+ 8) loginto your aws console and see resource created
+
+9)  deleting of the instance involves stopping it and then terminating (two files)
+
+ to stop - put the text below into a stop.pp
 
 ec2_instance { 'myinstance':
   ensure   => 'stopped',
-  region   => 'eu-west-1', # must have the region
+  region   => 'eu-west-1', # must include the region
 }
 
-# to terminate -put the text below into file_name.pp and run $puppet apply file_name.pp
+  $ puppet apply stop.pp # to stop 
+  
+# to terminate -put the text below into terminate.pp and run $puppet apply file_name.pp
 
 ec2_instance { 'myintance':
   ensure   => 'absent',
-  region   => 'eu-west-1', # must have the region
+  region   => 'eu-west-1', # must include the region
 }
 
+
+$ puppet apply terminate.pp # to terminate
 
 
 
